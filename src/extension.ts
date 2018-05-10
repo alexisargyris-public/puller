@@ -1,7 +1,7 @@
 'use strict'
 
 import * as vscode from 'vscode'
-import Config from './aws-exports'
+import Database from './db'
 
 /**
  * This is called by vscode to activate the command contributed by the extension
@@ -9,11 +9,10 @@ import Config from './aws-exports'
  */
 export function activate(context: vscode.ExtensionContext) {
   // exit immediately if no document is open
-  if (typeof vscode.window.activeTextEditor === 'undefined') {
+  if (typeof vscode.window.activeTextEditor === 'undefined')
     // no editor is open
     // FIXME: return something that will allow successful activation after an editor is opened
     return
-  }
 
   console.log('puller activated')
 
@@ -24,7 +23,19 @@ export function activate(context: vscode.ExtensionContext) {
   statusBarItem.text = 'puller'
   statusBarItem.show()
 
-  let disposable = vscode.commands.registerCommand('extension.puller', () => {})
+  const db = new Database()
+
+  let disposable = vscode.commands.registerCommand('extension.puller', () => {
+    let sessionId = '1525936628961'
+    db
+      .listEventsBySession(sessionId)
+      .then(items => {
+        console.log(items)
+      })
+      .catch(error => {
+        vscode.window.showErrorMessage('an error occured: ' + error.message)
+      })
+  })
   context.subscriptions.push(disposable)
 }
 
