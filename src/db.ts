@@ -8,6 +8,49 @@ export default class Database {
   constructor() {
     this.gr = new Mygraphql()
   }
+  public listFiles() {
+    let qr = `
+    query {
+      listFiles(first: 10) {
+        items {
+          fileId
+          path
+        }
+      }
+    }
+    `
+    return this.gr.query(qr).then(res => {
+      let options: any[] = []
+
+      res.data.listFiles.items.forEach(element => {
+        options.push({ label: element.path, target: element.fileId })
+      })
+      return options
+    })
+  }
+  public listSessionsByFile(fileId: String) {
+    let qr = `
+    query {
+      listSessionsByFile(fileId: "${fileId}") {
+        items {
+          sessionId
+        }
+      }
+    }
+    `
+
+    return this.gr.query(qr).then(res => {
+      let options: any[] = []
+
+      res.data.listSessionsByFile.items.forEach(element => {
+        options.push({
+          label: new Date(parseInt(element.sessionId, 10)).toLocaleString(),
+          target: element.sessionId
+        })
+      })
+      return options
+    })
+  }
   public listEventsBySession(sessionId: String) {
     let qr = `
     query {
@@ -22,76 +65,6 @@ export default class Database {
     `
     return this.gr.query(qr).then(res => {
       return res.data.listEventsBySession.items
-    })
-  }
-  public createEvent(sessionId: String, content: String) {
-    let mutation = `
-    mutation {
-      createEvent(input: {
-        sessionId: "${sessionId}",
-        content: "${content}"
-      }){
-        eventId
-      }
-    }`
-    return this.gr.mutate(mutation).then(res => {
-      return res.data.createEvent.eventId
-    })
-  }
-  public createSession(fileId: String) {
-    let mutation = `
-    mutation {
-      createSession(input: {
-        fileId: "${fileId}"
-      }){
-        sessionId
-      }
-    }
-    `
-    return this.gr.mutate(mutation).then(res => {
-      return res.data.createSession.sessionId
-    })
-  }
-  public createFile(path: String) {
-    let mutation = `
-    mutation {
-      createFile(input: {
-        path: "${path}"
-      }){
-        fileId
-      }
-    }
-    `
-    return this.gr.mutate(mutation).then(res => {
-      return res.data.createFile.fileId
-    })
-  }
-  public listFilesByPath(path: String) {
-    let qr = `
-    query {
-      listFilesByPath(path: "${path}") {
-        items {
-          fileId
-        }
-      }
-    }
-    `
-    return this.gr.query(qr).then(res => {
-      return res.data.listFilesByPath.items
-    })
-  }
-  public findFileId(path: String) {
-    // find a file and return its id or create a new one
-    return this.listFilesByPath(path).then(items => {
-      if (items.length >= 1) {
-        // file found; return its fileId
-        return items[0].fileId
-      } else {
-        // file not found; create a new file entry and return its id
-        return this.createFile(path).then(fileId => {
-          return fileId
-        })
-      }
     })
   }
 }
