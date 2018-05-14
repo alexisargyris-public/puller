@@ -66,4 +66,7 @@ export default class Mygraphql {
   public query(qr: String) {
     return this.client.query({ query: this.gql(qr) })
   }
+  public subscription(sb: String) {
+    return this.client.subscribe({ query: this.gql(sb) })
+  }
 }

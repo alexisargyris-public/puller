@@ -67,4 +67,16 @@ export default class Database {
       return res.data.listEventsBySession.items
     })
   }
+  public onCreateEvent() {
+    let sb = `
+    subscription {
+      newEvent {
+        eventId
+        content
+        sessionId
+      }
+    }
+    `
+    return this.gr.subscription(sb)
+  }
 }

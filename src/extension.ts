@@ -32,6 +32,10 @@ export function activate(context: vscode.ExtensionContext) {
   let disposable = vscode.commands.registerCommand(
     'extension.puller',
     async () => {
+      const realtimeResults = async function realtimeResults(incoming) {
+        let data = JSON.parse(incoming.data.newEvent.content)
+        let change = await applyChange(editor, data.range, data.text)
+      }
       const fileSelection = await vscode.window.showQuickPick(db.listFiles(), {
         placeHolder: 'Select a file id.'
       })
@@ -50,6 +54,12 @@ export function activate(context: vscode.ExtensionContext) {
         let data = JSON.parse(event.content)
         let change = await applyChange(editor, data.range, data.text)
       }
+      const sub = await db.onCreateEvent()
+      sub.subscribe({
+        next: realtimeResults,
+        complete: console.log,
+        error: console.log
+      })
     }
   )
   context.subscriptions.push(disposable)
