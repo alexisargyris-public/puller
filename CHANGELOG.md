@@ -6,3 +6,11 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [1.0.0] - 2018-05-16
+
+### Added
+
+* proof of concept
+* select file and session to sync
+* experimented with subscription (finally decided to remove it because a real-time capability is not relevant here)
