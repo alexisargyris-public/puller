@@ -32,21 +32,38 @@ export function activate(context: vscode.ExtensionContext) {
   let disposable = vscode.commands.registerCommand(
     'extension.puller',
     async () => {
-      const fileSelection = await vscode.window.showQuickPick(db.listFiles(), {
-        placeHolder: 'Select a file id.'
-      })
+      const getFiles = function() {
+        return db.listFiles().then(res => {
+          return sortby(res, [el => el.label])
+        })
+      }
+      const getSessions = function(fileId) {
+        return db.listSessionsByFile(fileId).then(res => {
+          return sortby(res, [el => el.label])
+        })
+      }
+      const getEvents = function(sessionId) {
+        return db.listEventsBySession(sessionId).then(res => {
+          return sortby(res, [el => el.eventId])
+        })
+      }
+      // let things = await getFiles()
+      const fileSelection = await vscode.window.showQuickPick(
+        await getFiles(),
+        {
+          placeHolder: 'Select a file id.'
+        }
+      )
       const fileId = fileSelection.target
-      // TODO: sort session ids
       const sessionSelection = await vscode.window.showQuickPick(
-        db.listSessionsByFile(fileId),
+        await getSessions(fileId),
         {
           placeHolder: 'Select a session id.'
         }
       )
       const sessionId = sessionSelection.target
-      const events = await db.listEventsBySession(sessionId)
-      const eventsSorted = sortby(events, [el => el.eventId])
-      for (let event of eventsSorted) {
+      const events = await getEvents(sessionId)
+      for (let event of events) {
         let data = JSON.parse(event.content)
         let change = await applyChange(editor, data.range, data.text)
       }
