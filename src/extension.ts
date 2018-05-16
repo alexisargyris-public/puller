@@ -65,7 +65,7 @@ export function activate(context: vscode.ExtensionContext) {
       const events = await getEvents(sessionId)
       for (let event of events) {
         let data = JSON.parse(event.content)
-        let change = await applyChange(editor, data.range, data.text)
+        await applyChange(editor, data.range, data.text)
       }
     }
   )
